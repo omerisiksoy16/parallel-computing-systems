@@ -1,0 +1,24 @@
+# Build artifacts
+objs/
+*.o
+*.a
+*.so
+
+# Executables
+prog1_mandelbrot_threads/mandelbrot
+prog2_vecintrin/myexp
+prog3_mandelbrot_ispc/mandelbrot_ispc
+prog4_sqrt/sqrt
+prog5_saxpy/saxpy
+prog6_kmeans/kmeans
+
+# Generated test images (prevent repo bloat)
+*.ppm
+*.log
+
+# Python cache
+__pycache__/
+*.pyc
+
+# OS files
+.DS_Store
