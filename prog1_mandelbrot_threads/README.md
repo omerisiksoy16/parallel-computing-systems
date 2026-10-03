@@ -76,7 +76,7 @@ Thread 7  (Rows 525 - 599):  37.01 ms  [Fractal Core - Extreme Density]
 Thread 8  (Rows 600 - 674):  39.34 ms  [Fractal Core - Extreme Density]
 
 Overall Measured Runtime: 35.83 ms (Matches the slowest thread ~37-39 ms)
-
+```
 ### Key Findings:
 1. **50x Workload Disparity:** Thread 8 performed over 50 times more work than Thread 0 (39.34 ms vs. 0.76 ms).
 2. **Symmetric Bell Curve:** Workload distribution mirrors the vertical cross-section of the fractal set.
