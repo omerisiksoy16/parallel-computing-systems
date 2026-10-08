@@ -89,14 +89,11 @@ To minimize SIMD speedup, the input pattern must maximize control-flow divergenc
 
 ## 4. Summary Benchmark Matrix
 
-| Input Configuration | $T_{\text{serial}}$ | $T_{\text{ispc}}$ | SIMD Speedup | $T_{\text{task}}$ | Multi-Core Scaling | Aggregate Speedup | Primary Limiting Factor |
+| Experiment | Input Pattern | $T_{\text{serial}}$ | $T_{\text{ispc}}$ | SIMD Speedup | $T_{\text{task}}$ | Multi-Core Scaling | Aggregate Speedup |
 | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
-| **Uniform Max (`2.998f`)** | 808.21 ms | 194.60 ms | **4.15x** | 16.54 ms | 11.77x | **48.87x** | Hardware ALU / FMA throughput |
-| **Uniform Min (`0.001f`)** | 394.51 ms | 99.40 ms | **3.97x** | 9.82 ms | 10.12x | **40.18x** | Lower iteration count |
-| **Random Baseline** | 501.10 ms | 135.87 ms | **3.69x** | 10.98 ms | 12.37x | **45.62x** | Moderate SIMD lane divergence |
-| **Partial Divergence (`i%8==0 ? 2.998 : 0.001`)** | 452.61 ms | 195.12 ms | **2.32x** | 16.97 ms | 11.50x | **26.68x** | Significant lane masking |
-| **Zero-Work (`1.0f`)** | 8.06 ms | 6.66 ms | **1.21x** | 2.48 ms | 2.68x | **3.24x** | Memory latency / setup overhead |
-| **Pathological Divergence (`i%8==0 ? 2.999 : 1.0`)** | 133.24 ms | 215.22 ms | **0.62x** | 18.07 ms | 11.91x | **7.37x** | Severe SIMD divergence (12.5% lane utilization) |
+| **Baseline (Q1)** | Random $[0.001, 2.999]$ | 501.10 ms | 135.87 ms | **3.69x** | 10.98 ms | 12.37x | **45.62x** |
+| **Best Case (Q2)** | Uniform `2.998f` | 808.21 ms | 194.60 ms | **4.15x** | 16.54 ms | 11.77x | **48.87x** |
+| **Worst Case (Q3)** | `i % 8 == 0 ? 2.999f : 1.0f` | 133.24 ms | 215.22 ms | **0.62x** | 18.07 ms | 11.91x | **7.37x** |
 
 ---
 
