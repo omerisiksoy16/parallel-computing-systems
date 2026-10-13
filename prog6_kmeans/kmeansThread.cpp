@@ -53,10 +53,12 @@ static bool stoppingConditionMet(double *prevCost, double *currCost,
  * @param nDim The dimensionality (number of elements) in each data point
  *     (must be the same for x and y).
  */
+
 double dist(double *x, double *y, int nDim) {
   double accum = 0.0;
   for (int i = 0; i < nDim; i++) {
-    accum += pow((x[i] - y[i]), 2);
+    double diff = x[i] - y[i];
+    accum += diff*diff;
   }
   return sqrt(accum);
 }
@@ -64,7 +66,31 @@ double dist(double *x, double *y, int nDim) {
 /**
  * Assigns each data point to its "closest" cluster centroid.
  */
+
+void workerThread(int start, int end, double *minDist, WorkerArgs *const args){
+  // Assign datapoints to closest centroids
+  for (int m = start; m < end; m++) {
+    for (int k = args->start; k < args->end; k++) {
+      double d = dist(&args->data[m * args->N],
+                      &args->clusterCentroids[k * args->N], args->N);
+      if (d < minDist[m]){
+        minDist[m] = d;
+        args->clusterAssignments[m] = k;
+      }
+    }
+  }
+}
+
+
+const int numThreads = 16;
 void computeAssignments(WorkerArgs *const args) {
+  
+  // Thread
+  std::thread myThread[numThreads];
+  int tasksPerThread = args->M / numThreads;
+  int remainder = args->M % numThreads;
+  
+  // Variables that belong to function
   double *minDist = new double[args->M];
   
   // Initialize arrays
@@ -73,20 +99,43 @@ void computeAssignments(WorkerArgs *const args) {
     args->clusterAssignments[m] = -1;
   }
 
+  // Thread starting
+  for (int i=1; i<numThreads; i++){
+    int addToLast;
+    if (i==numThreads-1) addToLast = remainder;
+    else addToLast=0;
+    myThread[i] = std::thread(workerThread, i*tasksPerThread, (i+1)*tasksPerThread + addToLast, minDist, args);
+  }
+  workerThread(0, tasksPerThread, minDist, args);
+  for (int i=1; i<numThreads; i++){
+    myThread[i].join();
+  }
+
+  /* FOR SAFETY PURPOSES
   // Assign datapoints to closest centroids
   for (int k = args->start; k < args->end; k++) {
     for (int m = 0; m < args->M; m++) {
       double d = dist(&args->data[m * args->N],
                       &args->clusterCentroids[k * args->N], args->N);
-      if (d < minDist[m]) {
+      if (d < minDist[m]){
         minDist[m] = d;
         args->clusterAssignments[m] = k;
       }
     }
-  }
+  }*/
 
   delete[] minDist;
 }
+/* FOR SAFETY PURPOSES
+    for (int m = 0; m < args->M; m++) {
+      double d = dist(&args->data[m * args->N],
+                      &args->clusterCentroids[k * args->N], args->N);
+      if (d < minDist[m]){
+        minDist[m] = d;
+        args->clusterAssignments[m] = k;
+      }
+    }
+*/
 
 /**
  * Given the cluster assignments, computes the new centroid locations for
@@ -196,6 +245,9 @@ void kMeansThread(double *data, double *clusterCentroids, int *clusterAssignment
   }
 
   /* Main K-Means Algorithm Loop */
+  double assignmentTimer=0.;
+  double centroidTimer=0.;
+  double costTimer=0.;
   int iter = 0;
   while (!stoppingConditionMet(prevCost, currCost, epsilon, K)) {
     // Update cost arrays (for checking convergence criteria)
@@ -207,13 +259,34 @@ void kMeansThread(double *data, double *clusterCentroids, int *clusterAssignment
     args.start = 0;
     args.end = K;
 
+    double tempStart;
+    double tempEnd;
+
+    tempStart=CycleTimer::currentSeconds();
     computeAssignments(&args);
+    tempEnd=CycleTimer::currentSeconds();
+    assignmentTimer+=tempEnd-tempStart;
+
+    tempStart=CycleTimer::currentSeconds();
     computeCentroids(&args);
+    tempEnd=CycleTimer::currentSeconds();
+    centroidTimer+=tempEnd-tempStart;
+
+    tempStart=CycleTimer::currentSeconds();
     computeCost(&args);
+    tempEnd=CycleTimer::currentSeconds();
+    costTimer+=tempEnd-tempStart;
 
     iter++;
   }
 
   delete[] currCost;
   delete[] prevCost;
+  
+  printf("--- Timing Table ---\n");
+  printf("Assignments: %.3f ms\n", assignmentTimer * 1000.0);
+  printf("Centroids:   %.3f ms\n", centroidTimer * 1000.0);
+  printf("Costs:       %.3f ms\n", costTimer * 1000.0);
+  printf("Total:       %.3f ms\n", (assignmentTimer + centroidTimer + costTimer) * 1000.0);
+  printf("---------------------------\n");
 }
