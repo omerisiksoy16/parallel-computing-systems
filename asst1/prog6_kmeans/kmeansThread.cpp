@@ -82,7 +82,7 @@ void workerThread(int start, int end, double *minDist, WorkerArgs *const args){
 }
 
 
-const int numThreads = 16;
+const int numThreads = 40;
 void computeAssignments(WorkerArgs *const args) {
   
   // Thread

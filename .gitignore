@@ -22,3 +22,11 @@ __pycache__/
 
 # OS files
 .DS_Store
+data.dat
+*.dat
+kmeans
+objs/
+**/*.dat
+**/data.dat
+**/objs/
+**/kmeans
