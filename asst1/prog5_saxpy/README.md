@@ -34,6 +34,7 @@ The total memory traffic reported in `main.cpp` uses:
 
 ```cpp
 TOTAL_BYTES = 4 * N * sizeof(float);
+```
 
 Even though the kernel algorithmically loads $X[i]$, loads $Y[i]$, and writes $result[i]$ (3 programmatic operations), the multiplier of 4 accurately reflects hardware memory traffic due to the **Write-Allocate, Write-Back** caching policy implemented in x86-64 microarchitectures:
 
