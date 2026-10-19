@@ -281,12 +281,12 @@ void clampedExpVector(float* values, int* exponents, float* output, int N) {
   // Your solution should work for any value of
   // N and VECTOR_WIDTH, not just when VECTOR_WIDTH divides N
   //
-  __cs149_vec_float x;
-  __cs149_vec_int y;
-  __cs149_vec_float z;
-  __cs149_vec_int yz;
-  __cs149_vec_int yo;
-  __cs149_vec_float yf;
+  __cs149_vec_float x; // bases
+  __cs149_vec_int y; // exponents
+  __cs149_vec_float z; // results
+  __cs149_vec_int yz; // all zeros vector
+  __cs149_vec_int yo; // all ones vector
+  __cs149_vec_float yf; // the bound vector
   __cs149_mask mask1,mask2;
   mask2 = _cs149_init_ones();
   _cs149_vset_int(yz, 0, mask2);
@@ -300,6 +300,7 @@ void clampedExpVector(float* values, int* exponents, float* output, int N) {
     else mask1 = _cs149_init_ones();
     _cs149_vload_float(x, values+i, mask1);
     _cs149_vload_int(y, exponents+i, mask1);
+    mask2 = _cs149_mask_and(mask1, mask2);
     _cs149_vgt_int(mask2, y, yz, mask1);
     while (_cs149_cntbits(mask2)){
       _cs149_vmult_float(z, x, z, mask2);
