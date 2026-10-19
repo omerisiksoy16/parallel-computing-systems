@@ -18,8 +18,8 @@ Assignment 1 explores the mechanics of parallel execution across multi-core proc
 
 Each program directory contains full source code and a standalone, publication-grade engineering report (`README.md`) detailing profiling methodologies, hypotheses, and benchmark results.
 
-| Program | Topic / Architecture Focus | Key Systems Outcome | Detailed Report |
-| :--- | :--- | :--- | :---: |
+| Program | Topic / Architecture Focus | Key Systems Outcome |
+| :--- | :--- | :--- |
 | **Prog 1: Multi-Threading** | Spatial load imbalance & thread synchronization (`std::thread`) | Diagnosed 50x workload imbalance; implemented cyclic row interleaving to achieve **$6.84\times$ speedup on 8 threads**. |
 | **Prog 2: Vector Intrinsics** | SIMD vector registers, lane masking & tree reduction | Implemented vector execution engine and logarithmic span ($O(N/W + \log_2 W)$) tree reduction in simulated SIMD hardware. |
 | **Prog 3: ISPC Task Compiler** | SPMD programming model & task scheduling granularity | Swept task granularities ($T=2 \dots 800$), identifying the optimal task-dispatch sweet spot at $T=160$ (**$36.47\times$ speedup**). |
