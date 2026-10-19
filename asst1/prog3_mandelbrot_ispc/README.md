@@ -47,19 +47,19 @@ To exceed the target threshold of **32x speedup**, the task partitioning in `man
 
 $$\text{rowsPerTask} = \frac{\text{height}}{\text{numTasks}}$$
 
-### Empirical Task Sweep Benchmark Table:
+### Empirical Task Sweep Benchmark Table
 
 | Number of Tasks ($T$) | Rows per Task | Multi-Core Runtime (ms) | Speedup (vs. Serial) | System Observation |
 | :---: | :---: | :---: | :---: | :--- |
-| **2** | 400 | 16.80 ms | **6.67x** | Massive hardware under-utilization (26 threads idle) |
-| **16** | 50 | 5.39 ms | **20.45x** | Utilizing primary P-cores |
-| **32** | 25 | 4.17 ms | **27.22x** | Exceeds hardware thread count; work-stealing active |
-| **40** | 20 | 3.85 ms | **29.65x** | Balanced chunk size across cores |
-| **80** | 10 | 3.60 ms | **31.47x** | Approaching optimal hardware saturation |
-| **160** | **5** | **3.06 ms** | **36.47x** | 🏆 **PEAK SWEET SPOT! (Shattered 32x goal)** |
-| **200** | 4 | 3.58 ms | **31.07x** | Diminishing returns & task overhead creep |
-| **400** | 2 | 3.82 ms | **29.26x** | Task dispatch latency impacts throughput |
-| **800** | 1 | 10.21 ms | **10.97x** | 💥 **Collapse (Scheduling overhead dominates)** |
+| **2** | 400 | 16.80 ms | 6.67x | Severe hardware under-utilization (most cores idle) |
+| **16** | 50 | 5.39 ms | 20.45x | Saturated physical P-cores; coarse load granularity |
+| **32** | 25 | 4.17 ms | 27.22x | Engaged all logical threads; dynamic work-stealing active |
+| **40** | 20 | 3.85 ms | 29.65x | Balanced chunk sizes across heterogeneous cores |
+| **80** | 10 | 3.60 ms | 31.47x | Approaching optimal hardware saturation |
+| **160** | 5 | **3.06 ms** | **36.47x** | **Optimal task granularity (peak load balance vs. overhead)** |
+| **200** | 4 | 3.58 ms | 31.07x | Diminishing returns; task queue dispatch latency emerges |
+| **400** | 2 | 3.82 ms | 29.26x | Task management overhead begins impacting throughput |
+| **800** | 1 | 10.21 ms | 10.97x | Severe throughput collapse; task scheduling overhead dominates |
 
 ### Why Did 160 Tasks Yield the Best Performance?
 1. **Dynamic Load Balancing via Over-Decomposition:** Setting $T = 160$ provides $\sim 5.7$ tasks per hardware thread ($160 / 28 \approx 5.7$). ISPC’s user-space work-stealing thread pool ensures that cores finishing easy exterior tasks immediately steal remaining interior tasks, eliminating the static load imbalance seen in Program 1.

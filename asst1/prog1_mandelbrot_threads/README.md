@@ -38,16 +38,22 @@ The starter code was initially extended to partition the vertical coordinate spa
 - Beyond 3 threads, scalability resumes but efficiency stagnates around ~45–50%, yielding only 3.84x on 8 threads.
 
 ### Hypothesis for the 3-Thread Degradation
-In the Mandelbrot set, computing whether a complex number diverges requires iterating `z_{k+1} = z_k^2 + c` up to `maxIterations` (1000 iterations). 
-- Pixels far from the boundary diverge in just 1–2 iterations.
-- Pixels inside the cardioid and main bulbs require all 1000 iterations.
-- In View 1, the computationally dense fractal body is strictly centered vertically (`y ~ 0`).
 
-When partitioning into 3 horizontal blocks:
-- **Thread 0 (Top 33%)** and **Thread 2 (Bottom 33%)** receive uniform exterior regions with almost zero computational density.
-- **Thread 1 (Middle 33%)** encompasses the entire dense central fractal structure alone.
+In the Mandelbrot set, computing whether a complex number diverges requires evaluating the recurrence relation $z_{k+1} = z_k^2 + c$ up to `maxIterations` (1000 iterations):
 
-Because thread execution is synchronized at `join()`, overall wall-clock runtime is bound by `max(T_i)`. Consequently, Thread 1 performs more sequential work than either thread did in the 2-thread configuration (where the dense center was bisected evenly across Thread 0 and Thread 1).
+* Pixels far from the boundary diverge in just 1–2 iterations.
+* Pixels inside the cardioid and main bulbs require all 1000 iterations.
+* In View 1, the computationally dense fractal body is strictly centered vertically ($y \approx 0$).
+
+When partitioning the workload into 3 contiguous horizontal blocks:
+
+* **Thread 0 (Top 33%)** and **Thread 2 (Bottom 33%)** receive uniform exterior regions with near-zero computational density.
+* **Thread 1 (Middle 33%)** encompasses the entire dense central fractal structure alone.
+
+Because thread execution is synchronized at `join()`, overall wall-clock runtime is bounded by the slowest thread:
+$$T_{\text{total}} = \max(T_0, T_1, T_2)$$
+
+Consequently, Thread 1 performs more sequential work than either thread did in the 2-thread configuration (where the dense center was bisected evenly across Thread 0 and Thread 1).
 
 ---
 

@@ -31,6 +31,7 @@ Single-core ISPC already drives 42.622 GB/s through hardware prefetchers. Launch
 ## 2. Extra Credit 1: Justification of the Factor of 4 in `TOTAL_BYTES`
 
 The total memory traffic reported in `main.cpp` uses:
+
 $$\text{TOTAL\_BYTES} = 4 \times N \times \text{sizeof(float)}$$
 
 Even though the kernel algorithmically loads $X[i]$, loads $Y[i]$, and writes $result[i]$ (3 programmatic operations), the multiplier of 4 accurately reflects hardware memory traffic due to the **Write-Allocate, Write-Back** caching policy implemented in x86-64 microarchitectures:
